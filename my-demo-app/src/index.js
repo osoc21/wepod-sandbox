@@ -183,6 +183,7 @@ async function placeFileInContainer(file, targetContainerURL) {
 
 let dropArea = document.querySelector("#file-drop-zone");
 dropArea.addEventListener('drop', handleFileDrop, false);
+let previewArea = document.getElementById("preview-zone");
 
 
 function handleFileDrop(e)
@@ -195,6 +196,13 @@ function handleFileDrop(e)
         for (let file of droppedFiles)
         {
             console.log(file.name);
+            //img_preview.src = URL.createObjectURL(file);
+            let img_el = document.createElement("img");
+            img_el.src = URL.createObjectURL(file);
+            img_el.classList.add("img-thumbnail");
+            previewArea.appendChild(img_el);
+
+
         }
     }
     else
@@ -205,6 +213,8 @@ function handleFileDrop(e)
     console.log(e);
     // return false;
 }
+
+
 
 ['dragenter', 'dragover', 'dragleave'].forEach(eventName => {
   dropArea.addEventListener(eventName, preventDefaults, false)

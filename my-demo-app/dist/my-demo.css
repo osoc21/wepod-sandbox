@@ -57,9 +57,17 @@ dd {
 {
    outline-style: dashed;
    outline-color: transparent;
+   background-color: #ddd; 
+   width: 400px; 
+   height: 200px;
 }
 
 .drop-zone-hover
 {
    outline-color: grey;
+}
+
+.img-thumbnail{
+   width: 200px;
+   height: auto;
 }
