@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <title>Getting Started: Inrupt JavaScript Client Libraries</title>
     <script defer src="./index.js" ></script>
-    <link rel="stylesheet" href="my-demo.css" />
+    <link rel="stylesheet" href="my-demo.css"/>
+    <link rel="shortcut icon" type="image/png" href="wepod_crest.png"/>
   </head>
   <body>
-    
     <header>
         <h2>Getting Started</h2>
         <h3>with Inrupt JavaScript Client Libraries</h3>
@@ -42,12 +42,17 @@
     </div>
     <div id="file-upload" class="panel">
       <button id="upload-file-btn">Upload</button>
-      <p>Drop a file</p>
+      <p>Drop a file:</p>
       <input type="file" class="drop-zone" id="file-drop-zone"
       style="background-color: #ddd; width: 400px; height: 200px;"
       multiple accept="image/*">
     </div>
     <div id="file-explorer" class="panel">
+      <button id="get-files-btn">Get files</button>
+      <p>Your files:</p>
+      <div id="file-viewer">
+        <p><i>Nothing to display</i></p>
+      </div>
     </div>
   </body>
 </html>
