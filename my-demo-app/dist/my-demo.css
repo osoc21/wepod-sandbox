@@ -53,6 +53,22 @@ dd {
   grid-column-start: 2;
 }
 
+select
+{
+ padding: 5px;
+}
+
+button {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #ddd;
+  border: 2px solid #ddd;
+}
+
+button:hover {
+   background-color: white;
+}
+
 .drop-zone
 {
    outline-style: dashed;
