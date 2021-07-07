@@ -1,0 +1,24 @@
+{
+  "name": "solid-demo-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack-cli serve --open true --port 8888"
+  },
+  "dependencies": {
+    "@inrupt/solid-client": "^1.10.0",
+    "@inrupt/solid-client-authn-browser": "^1.9.1",
+    "@inrupt/vocab-common-rdf": "^0.7.4",
+    "buffer": "^6.0.3",
+    "css-loader": "^5.2.6",
+    "style-loader": "^3.0.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.42.1"
+  }
+}
