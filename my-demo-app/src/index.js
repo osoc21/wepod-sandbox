@@ -10,14 +10,22 @@ import {
 import {
   getSolidDataset,
   getThing,
-  getStringNoLocale
+  getStringNoLocale,
+  // write data
+  setThing,
+  saveSolidDatasetAt,
+  // added to upload image to pod
+  saveFileInContainer, 
+  getSourceUrl,
+  setStringNoLocale
 } from '@inrupt/solid-client';
 
-import { VCARD } from '@inrupt/vocab-common-rdf';
+import {FOAF, VCARD } from '@inrupt/vocab-common-rdf';
 
 
 
 let droppedFiles = [];
+let MY_POD_URL = null;
 
 
 const buttonLogin = document.querySelector("#btnLogin");
@@ -27,7 +35,8 @@ const buttonRead = document.querySelector("#btnRead");
 function loginToInruptDotCom() {
   return login({
 
-    oidcIssuer: "https://broker.pod.inrupt.com",
+    //oidcIssuer: "https://broker.pod.inrupt.com",
+    oidcIssuer: "https://solidweb.org/",
 
     redirectUrl: window.location.href,
     clientName: "Getting started app"
@@ -55,6 +64,7 @@ handleRedirectAfterLogin();
 // 2. Read profile
 async function readProfile() {
   const webID = document.getElementById("webID").value;
+  MY_POD_URL = getPODUrl(webID);
 
   // The example assumes the WebID has the URI <profileDocumentURI>#<fragment> where
   // <profileDocumentURI> is the URI of the SolidDataset
@@ -100,19 +110,27 @@ uploadBtn.onclick = function(){
     uploadFiles();
 }
 
-const MY_POD_URL = "https://pod.inrupt.com/wepodrom/";
 
 
-// function getPODUrl(provider, pseudo)
-// {
-//     // TODO: create enums for provider types and urls
-//     if (provider == "https://pod.inrupt.com")
-//     {
-//         return provider + "/" + pseudo + "/";
-//     }
+const solidwebPattern = "https:\/\/(\w+\.)solidweb.org\/";
+const podInruptPattern = "https:\/\/pod\.inrupt\.com\/\w+\/";
 
-//     return null;
-// }
+const tempPodPattern = /https:\/\/(\w+\.)solidweb.org\/|https:\/\/pod\.inrupt\.com\/\w+\//;
+
+ function getPODUrl(provider)
+{
+
+  const podURL = provider.match(tempPodPattern)[0];
+  return podURL;
+    // TODO: create enums for provider types and urls
+    /*
+    if (provider == "https://pod.inrupt.com")
+    {
+        return provider + "/" + pseudo + "/";
+    }
+    */
+
+}
 
 
 // Upload selected files to Pod
@@ -122,7 +140,8 @@ function uploadFiles()
     // const fileList = document.getElementById('file-drop-zone').files;
     for (let file of droppedFiles)
     {
-        writeFileToPod(file, `${MY_POD_URL}/${file.name}`, fetch);
+      placeFileInContainer(file, `${MY_POD_URL}`);
+        //writeFileToPod(file, `${MY_POD_URL}/${file.name}`, fetch);
     }
 }
 
@@ -145,6 +164,21 @@ async function writeFileToPod(file, targetFileURL, fetch )
     {
         console.error(error);
     }
+}
+
+// Upload file into the targetContainer.
+async function placeFileInContainer(file, targetContainerURL) {
+  try {
+  const savedFile = await saveFileInContainer(
+      targetContainerURL,           // Container URL
+      file,                         // File 
+      { slug: file.name.split('.')[0], 
+        contentType: file.type, fetch: fetch }
+  );
+  console.log(`File saved at ${getSourceUrl(savedFile)}`);
+  } catch (error) {
+  console.error(error);
+  }
 }
 
 let dropArea = document.querySelector("#file-drop-zone");
