@@ -28,15 +28,17 @@ let droppedFiles = [];
 let MY_POD_URL = null;
 
 
+
 const buttonLogin = document.querySelector("#btnLogin");
 const buttonRead = document.querySelector("#btnRead");
 
 // 1a. Start Login Process. Call login() function.
 function loginToInruptDotCom() {
-  return login({
+  let chosenIssuer = document.querySelector("#pod-issuer").value;
 
+  return login({
     //oidcIssuer: "https://broker.pod.inrupt.com",
-    oidcIssuer: "https://solidweb.org/",
+    oidcIssuer: chosenIssuer,
 
     redirectUrl: window.location.href,
     clientName: "Getting started app"
@@ -60,6 +62,44 @@ async function handleRedirectAfterLogin() {
 // This calls the function to process login information.
 // If the function is called when not part of the login redirect, the function is a no-op.
 handleRedirectAfterLogin();
+
+/** Fetch all files from the given path given relative to the root */
+async function getFiles() {
+  const webID = document.getElementById("webID").value;
+  MY_POD_URL = getPODUrl(webID);
+
+  // Parse ProfileDocument URI from the `webID` value.
+  const profileDocumentURI = webID.split('#')[0];
+  document.getElementById("labelProfile").textContent = profileDocumentURI;
+
+  // Use `getSolidDataset` to get the Profile document.
+  // Profile document is public and can be read w/o authentication; i.e.: 
+  // - You can either omit `fetch` or 
+  // - You can pass in `fetch` with or without logging in first. 
+  //   If logged in, the `fetch` is authenticated.
+  // For illustrative purposes, the `fetch` is passed in.
+  const rootFiles = await getSolidDataset(MY_POD_URL, { fetch: fetch });
+
+  // Get the Profile data from the retrieved SolidDataset
+  const profile = getThing(rootFiles, webID);
+
+  // Get the formatted name using `VCARD.fn` convenience object.
+  // `VCARD.fn` includes the identifier string "http://www.w3.org/2006/vcard/ns#fn".
+  // As an alternative, you can pass in the "http://www.w3.org/2006/vcard/ns#fn" string instead of `VCARD.fn`.
+ 
+  const fn = getStringNoLocale(profile, VCARD.fn);
+
+  // Get the role using `VCARD.role` convenience object.
+  // `VCARD.role` includes the identifier string "http://www.w3.org/2006/vcard/ns#role"
+  // As an alternative, you can pass in the "http://www.w3.org/2006/vcard/ns#role" string instead of `VCARD.role`.
+
+  const role = getStringNoLocale(profile, VCARD.role);
+
+  // Update the page with the retrieved values.
+  document.getElementById("labelFN").textContent = fn;
+  document.getElementById("labelRole").textContent = role;
+}
+
 
 // 2. Read profile
 async function readProfile() {
