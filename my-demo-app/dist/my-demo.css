@@ -67,7 +67,13 @@ dd {
    outline-color: grey;
 }
 
+.file-preview-zone{
+   display: flex;
+   flex-wrap: wrap;
+}
+
 .img-thumbnail{
    width: 200px;
-   height: auto;
+   height: 100%;
+   margin: 20px;
 }
