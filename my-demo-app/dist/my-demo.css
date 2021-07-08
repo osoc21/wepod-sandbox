@@ -79,3 +79,7 @@ button:hover {
 {
    outline-color: grey;
 }
+
+.pod-resource:hover{
+   color: grey;
+}

@@ -27,13 +27,14 @@ import {FOAF, VCARD } from '@inrupt/vocab-common-rdf';
 
 let droppedFiles = [];
 let MY_POD_URL = null;
+let urlParentStack = [];
 
 
 
 const buttonLogin = document.querySelector("#btnLogin");
 const buttonRead = document.querySelector("#btnRead");
 const buttonGetFiles = document.querySelector('#get-files-btn');
-
+const explorerGoBackBtn = document.querySelector('#go-back');
 
 // 1a. Start Login Process. Call login() function.
 function loginToInruptDotCom() {
@@ -67,6 +68,55 @@ async function handleRedirectAfterLogin() {
 // If the function is called when not part of the login redirect, the function is a no-op.
 handleRedirectAfterLogin();
 
+async function fileExplorerGoBack()
+{
+    console.log("*******");
+    console.log(urlParentStack);
+    if (urlParentStack.length > 0)
+    {
+        urlParentStack.pop(); // remove the current dir from the stack
+        let url = urlParentStack[urlParentStack.length-1];
+        console.log("going back to " + url + " ...");
+        getFilesFromResourceURL(url);
+    }
+    else
+    {
+        console.log("Cannot go back from POD root.");
+    }
+} 
+
+
+async function getFilesFromResourceURL(url)
+{
+    const fetchedFiles = await getSolidDataset(url, { fetch: fetch });
+    console.log("fetched files:");
+    console.log(fetchedFiles,'\n');
+
+    let fileViewerDiv = document.querySelector("#file-viewer");
+    let children = getThingAll(fetchedFiles);
+
+    // the first child element is self
+    if (children.length > 1)
+    {
+        fileViewerDiv.innerHTML = "";
+        urlParentStack.push(url);
+    }
+    for (let item of children.slice(1, children.length))
+    {
+        console.log(item);
+        let parNode = document.createElement("P");
+        parNode.classList.add('pod-resource');
+        let textNode = document.createTextNode(item.url + "\n\n");
+        parNode.appendChild(textNode);
+        parNode.addEventListener('click', 
+            function(){getFilesFromResourceURL(parNode.textContent)}
+        );
+        fileViewerDiv.appendChild(parNode);
+    }
+}
+
+
+
 /** Fetch all files from the given path given relative to the root */
 async function getFiles() {
   const webID = document.getElementById("webID").value;
@@ -76,32 +126,37 @@ async function getFiles() {
   const profileDocumentURI = webID.split('#')[0];
   document.getElementById("labelProfile").textContent = profileDocumentURI;
 
+  getFilesFromResourceURL(MY_POD_URL);
+
   // Use `getSolidDataset` to get the Profile document.
   // Profile document is public and can be read w/o authentication; i.e.: 
   // - You can either omit `fetch` or 
   // - You can pass in `fetch` with or without logging in first. 
   //   If logged in, the `fetch` is authenticated.
   // For illustrative purposes, the `fetch` is passed in.
-  const rootFiles = await getSolidDataset(MY_POD_URL, { fetch: fetch });
-  console.log("root files var:");
-  console.log(rootFiles,'\n');
+  // const rootFiles = await getSolidDataset(MY_POD_URL, { fetch: fetch });
+  // console.log("root files var:");
+  // console.log(rootFiles,'\n');
 
-  let fileViewerDiv = document.querySelector("#file-viewer");
-  let children = getThingAll(rootFiles);
+  // getFilesFromResourceURL(rootFiles);
 
-  // the first child element is self
-  if (children.length > 1)
-  {
-    fileViewerDiv.innerHTML = "";
-  }
-  for (let item of children.slice(1, children.length))
-  {
-    console.log(item);
-    let parNode = document.createElement("P");
-    let textNode = document.createTextNode(item.url + "\n\n");
-    parNode.appendChild(textNode);                              // Append the text to <li>
-    fileViewerDiv.appendChild(parNode);                              // Append the text to <li>
-  }
+  // let fileViewerDiv = document.querySelector("#file-viewer");
+  // let children = getThingAll(rootFiles);
+
+  // // the first child element is self
+  // if (children.length > 1)
+  // {
+  //   fileViewerDiv.innerHTML = "";
+  // }
+  // for (let item of children.slice(1, children.length))
+  // {
+  //   console.log(item);
+  //   let parNode = document.createElement("P");
+  //   parNode.classList.add('pod-resource');
+  //   let textNode = document.createTextNode(item.url + "\n\n");
+  //   parNode.appendChild(textNode);                              // Append the text to <li>
+  //   fileViewerDiv.appendChild(parNode);                              // Append the text to <li>
+  // }
   
 
   // // Get the Profile data from the retrieved SolidDataset
@@ -301,6 +356,10 @@ buttonGetFiles.onclick = function() {
   getFiles();
 }
 
+explorerGoBackBtn.onclick = function() {
+    fileExplorerGoBack()
+}
+
 buttonLogin.onclick = function() {  
   loginToInruptDotCom();
 };
@@ -308,6 +367,7 @@ buttonLogin.onclick = function() {
 buttonRead.onclick = function() {  
   readProfile();
 };
+
 
 // const uploadBtn = document.querySelector("#upload-file-btn");
 
